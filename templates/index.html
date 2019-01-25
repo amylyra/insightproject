@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="chat-container" style="overflow: auto; max-height: 80vh">
+        <div class="table-responsive">
+            <table class="table" id="ingredients">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">About</th>
+                        <th scope="col">Overall Hazard</th>
+                        <th scope="col">Function(s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for ingredient in ingredients %}
+                    <tr id={{ ingredient.name }}>
+                        <th scope="row">{{ ingredient.name }}</th>
+                        <td> {{ ingredient.about }}</td>
+                        <td> {{ingredient.safety }} </td>
+                        <td> {{ingredient.function }} </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
