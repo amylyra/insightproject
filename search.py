@@ -37,7 +37,19 @@ def product_search(brand,name, es, index=product_index):
         return(brand, name, ingredients, listPrice, size, rating)
     except:
         return None
-    
+   
+def ingredients_processing(ingredients):
+    symbols=["(",")","/","-",":"]
+    ingredients=ingredients.lower()
+    for s in symbols:
+             ingredients=ingredients.replace(s," ")
+        try:
+            ingredients=ingredients[ingredients.index("water"):]
+        except ValueError:
+            ingredients=ingedients                                
+    ing_list=ingredients.split(',')
+    return ing_list
+
 def ingredient_search(ing_name, es, index=ingredient_index):
     """Give single ingredient name, return Ingredient(name, about, safty, function)
     """
