@@ -20,11 +20,54 @@ def shutdown_session(exception=None):
 
 @app.route('/')
 def index():
-    ingredients = Ingredient.query.all()
-    return render_template('index.html', ingredients=ingredients)
+    products = Product.query.all()
+    return render_template('index.html', products=products)
 
-@app.route('/backend', methods=["POST", "GET"])
-def backend():
+@app.route('/product', methods=["POST", "GET"])
+def product():
+    if request.method == "POST":
+        search_brand = request.form["brand"]
+        search_name = request.form["name"]
+        es = init_search()
+        result = product_search(search_brand, search_name, es)
+        if result:
+            brand = result[0]
+            name = result[1]
+            ingredients = result[2]
+            listPrice = result[3]
+            size=result[4]
+            rating=result[5]
+        else:
+            brand =  name = ingredients = listPrice = size = rating = None
+
+        print(name)
+        print("foo0 " + brand)
+        new_product = Product(brand, name, ingredients, listPrice,size,rating)
+        print("foo1 " + name)
+        db_session.add(new_product)
+        print("foo2 " + ingredients)
+        db_session.commit()
+
+        data = {
+            "brand": new_product.brand,
+            "name": new_product.name,
+            "ingredients": new_product.ingredients,
+            "listPrice": new_product.listPrice,
+            "size":new_product.size,
+            "rating":new_product.rating
+
+            }
+
+        print(data)
+        pusher_client.trigger('table', 'new-record', {'data': data })
+
+        return redirect("/product", code=302)
+    else:
+        products = Product.query.all()
+        return render_template('backend_product.html', products=products)
+
+@app.route('/ing', methods=["POST", "GET"])
+def ingredient():
     if request.method == "POST":
         search_name = request.form["ingredient"]
         es = init_search()
@@ -55,10 +98,10 @@ def backend():
         print(data)
         pusher_client.trigger('table', 'new-record', {'data': data })
 
-        return redirect("/backend", code=302)
+        return redirect("/ing", code=302)
     else:
         ingredients = Ingredient.query.all()
-        return render_template('backend.html', ingredients=ingredients)
+        return render_template('backend_ing.html', ingredients=ingredients)
 
 #@app.route('/edit/<int:id>', methods=["POST", "GET"])
 #def update_record(id):
@@ -88,7 +131,8 @@ def backend():
 #
 #        pusher_client.trigger('table', 'update-record', {'data': data })
 #
-#        return redirect("/backend", code=302)
+#        return redirect("/
+", code=302)
 #    else:
 #        new_flight = Flight.query.get(id)
 #        new_flight.check_in = new_flight.check_in.strftime("%d-%m-%Y %H:%M %p")
