@@ -50,52 +50,53 @@ def ingredients_processing(ingredients):
     ing_list=ingredients.split(',')
     return ing_list
 
-def ingredient_search(ing_name, es, index=ingredient_index):
+def ingredient_search(ing_list, es, index=ingredient_index):
     """Give single ingredient name, return Ingredient(name, about, safty, function)
     """
-    query = {
-      "from": 0,
-      "size": 1,
-      "query": {
-        "bool": {
-          "should": [
-            {
-              "term": {
-                "name.keyword": {
-                  "value": ing_name,
-                  "boost": 100
-                }
-              }
-            },
-            {
-              "match_phrase": {
-                "name": {
-                  "query": ing_name,
-                  "boost": 50
-                }
-              }
-            },
-            {
-              "match": {
-                "name": {
-                  "query": ing_name,
-                  "operator": "and",
-                  "boost": 20
-                }
-              }
-            }
-          ]
-        }
-      }
-    }
+   name=about=safety=function=[]
+   for ing_name in ing_list:
     try:
-        result = es.search(index=index,
-                           body=query
-                          )['hits']['hits'][0]['_source']
-        name = result['name']
-        about = result['About']
-        safety = result['Overall Hazard']
-        function = result['Function(s)']
-        return(name, about, safety, function)
+            result = es.search(index=index,body={
+                "from": 0,
+              "size": 1,
+              "query": {
+                "bool": {
+                  "should": [
+                    {
+                      "term": {
+                        "name.keyword": {
+                          "value": ing_name,
+                          "boost": 100
+                        }
+                      }
+                    },
+                    {
+                      "match_phrase": {
+                        "name": {
+                          "query": ing_name,
+                          "boost": 50
+                        }
+                      }
+                    },
+                    {
+                      "match": {
+                        "name": {
+                          "query": ing_name,
+                          "operator": "and",
+                          "boost": 20
+                        }
+                      }
+                    }
+                  ]
+                }
+              }})['hits']['hits'][0]['_source']
+      
+            name.append(result['name'])
+            about.append(result['About'])
+            safety.append(result['Overall Hazard'])
+            function.append(result['Function(s)'])
     except:
-        return None
+          return None
+   return(name, about, safety, function)
+        
+            
