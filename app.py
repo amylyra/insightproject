@@ -23,44 +23,64 @@ def index():
     products = Product.query.all()
     return render_template('index.html', products=products)
 
-@app.route('/product', methods=["POST", "GET"])
+@app.route('/backend', methods=["POST", "GET"])
 def product():
     if request.method == "POST":
         search_brand = request.form["brand"]
         search_name = request.form["name"]
         es = init_search()
-        result = product_search(search_brand, search_name, es)
-        if result:
-            brand = result[0]
-            name = result[1]
-            ingredients = result[2]
-            listPrice = result[3]
-            size=result[4]
-            rating=result[5]
+        product_result = product_search(search_brand, search_name, es)
+        if product_result:
+            brand = product_result[0]
+            name = product_result[1]
+            ing_raw = product_result[2]
+            listPrice = product_result[3]
+            size=product_result[4]
+            rating=product_result[5]
         else:
             brand =  name = ingredients = listPrice = size = rating = None
+        
+        ing_clean_list = ingredients_processing(ing_raw)
+        for ing in ing_clean_list:
+            ing_result = ingredient_search(ing, es,index=ingredient_index)
+            if ing_result:
+                name = ing_result[0]
+                about =ing_result[1]
+                safety = ing_ result[2]
+                function =ing_result[3]
+           else:
+                name = about = safety = function = None
+           new_ingredient = Ingredient(name, about, safety, function)
+           db_session.add(new_ingredient)
+           db_session.commit()
+           ing_data = {
+                        "name": new_ingredient.name,
+                        "about": new_ingredient.about,
+                        "safety": new_ingredient.safety,
+                        "function": new_ingredient.function,
+                        }
 
+        print(data)
+        pusher_client.trigger('table', 'new-record', {'data': ing_data })
+        
         print(name)
         print("foo0 " + brand)
-        new_product = Product(brand, name, ingredients, listPrice,size,rating)
         print("foo1 " + name)
-        db_session.add(new_product)
         print("foo2 " + ingredients)
+        new_product = Product(brand, name, ing_raw, listPrice,size,rating)
+        db_session.add(new_product)
         db_session.commit()
-
-        data = {
+        data_product = {
             "brand": new_product.brand,
             "name": new_product.name,
-            "ingredients": new_product.ingredients,
+            "ingredients": new_product.ing_raw,
             "listPrice": new_product.listPrice,
             "size":new_product.size,
             "rating":new_product.rating
-
             }
 
-        print(data)
-        pusher_client.trigger('table', 'new-record', {'data': data })
-
+        print(data_product)
+        pusher_client.trigger('table', 'new-record', {'data': data_product })
         return redirect("/product", code=302)
     else:
         products = Product.query.all()
