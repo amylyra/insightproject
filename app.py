@@ -2,8 +2,8 @@ import pusher
 import os
 from database import db_session
 from flask import Flask, request, jsonify, render_template, redirect
-from models import Ingredient
-from search import init_search, ingredient_search
+from models import Ingredient, Product
+from search import init_search, ingredient_search, product_search
 
 app = Flask(__name__)
 
@@ -32,13 +32,13 @@ def backend():
         product_result = product_search(search_brand, search_name, es)
         if product_result:
             brand = product_result[0]
-            name = product_result[1]
+            product_name = product_result[1]
             ing_raw = product_result[2]
             listPrice = product_result[3]
             size=product_result[4]
             rating=product_result[5]
         else:
-            brand =  name = ingredients = listPrice = size = rating = None
+            brand =  product_name = ingredients = listPrice = size = rating = None
         
         ing_clean_list = ingredients_processing(ing_raw)
         ing_canonical_list=[]
@@ -55,13 +55,13 @@ def backend():
            new_ingredient = Ingredient(name, about, safety, function)
            ing_canonical_list.append(new_ingredient)
          
-        new_product = Product(brand, name, ing_canonical_list, listPrice,size,rating)
+        new_product = Product(brand, product_name, ing_canonical_list, listPrice,size,rating)
         db_session.add(new_product)
         db_session.commit()
           
         data_product = {
             "brand": new_product.brand,
-            "name": new_product.name,
+            "product_name": new_product.product_name,
             "ingredients": new_product.ing_canonical_list,
             "listPrice": new_product.listPrice,
             "size":new_product.size,
