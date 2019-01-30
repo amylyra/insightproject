@@ -41,6 +41,8 @@ def backend():
             brand =  name = ingredients = listPrice = size = rating = None
         
         ing_clean_list = ingredients_processing(ing_raw)
+        ing_canonical_list=[]
+        
         for ing in ing_clean_list:
             ing_result = ingredient_search(ing, es,index=ingredient_index)
             if ing_result:
@@ -51,29 +53,16 @@ def backend():
            else:
                 name = about = safety = function = None
            new_ingredient = Ingredient(name, about, safety, function)
-           db_session.add(new_ingredient)
-           db_session.commit()
-           ing_data = {
-                        "name": new_ingredient.name,
-                        "about": new_ingredient.about,
-                        "safety": new_ingredient.safety,
-                        "function": new_ingredient.function,
-                        }
-
-        print(data)
-        pusher_client.trigger('table', 'new-record', {'data': ing_data })
-        
-        print(name)
-        print("foo0 " + brand)
-        print("foo1 " + name)
-        print("foo2 " + ingredients)
-        new_product = Product(brand, name, ing_raw, listPrice,size,rating)
+           ing_canonical_list.append(new_ingredient)
+         
+        new_product = Product(brand, name, ing_canonical_list, listPrice,size,rating)
         db_session.add(new_product)
         db_session.commit()
+          
         data_product = {
             "brand": new_product.brand,
             "name": new_product.name,
-            "ingredients": new_product.ing_raw,
+            "ingredients": new_product.ing_canonical_list,
             "listPrice": new_product.listPrice,
             "size":new_product.size,
             "rating":new_product.rating
@@ -81,47 +70,47 @@ def backend():
 
         print(data_product)
         pusher_client.trigger('table', 'new-record', {'data': data_product })
-        return redirect("/product", code=302)
+        return redirect("/backend", code=302)
     else:
         products = Product.query.all()
-        return render_template('backend_product.html', products=products)
+        return render_template('backend.html', products=products)
 
-@app.route('/ing', methods=["POST", "GET"])
-def ingredient():
-    if request.method == "POST":
-        search_name = request.form["ingredient"]
-        es = init_search()
-        result = ingredient_search(search_name, es)
-        if result:
-            name = result[0]
-            about = result[1]
-            safety = result[2]
-            function = result[3]
-        else:
-            name = about = safety = function = None
+# @app.route('/ing', methods=["POST", "GET"])
+# def ingredient():
+#     if request.method == "POST":
+#         search_name = request.form["ingredient"]
+#         es = init_search()
+#         result = ingredient_search(search_name, es)
+#         if result:
+#             name = result[0]
+#             about = result[1]
+#             safety = result[2]
+#             function = result[3]
+#         else:
+#             name = about = safety = function = None
 
-        print(name)
-        print("foo0 " + about)
-        new_ingredient = Ingredient(name, about, safety, function)
-        print("foo1 " + about)
-        db_session.add(new_ingredient)
-        print("foo2 " + about)
-        db_session.commit()
+#         print(name)
+#         print("foo0 " + about)
+#         new_ingredient = Ingredient(name, about, safety, function)
+#         print("foo1 " + about)
+#         db_session.add(new_ingredient)
+#         print("foo2 " + about)
+#         db_session.commit()
 
-        data = {
-            "name": new_ingredient.name,
-            "about": new_ingredient.about,
-            "safety": new_ingredient.safety,
-            "function": new_ingredient.function,
-            }
+#         data = {
+#             "name": new_ingredient.name,
+#             "about": new_ingredient.about,
+#             "safety": new_ingredient.safety,
+#             "function": new_ingredient.function,
+#             }
 
-        print(data)
-        pusher_client.trigger('table', 'new-record', {'data': data })
+#         print(data)
+#         pusher_client.trigger('table', 'new-record', {'data': data })
 
-        return redirect("/ing", code=302)
-    else:
-        ingredients = Ingredient.query.all()
-        return render_template('backend_ing.html', ingredients=ingredients)
+#         return redirect("/ing", code=302)
+#     else:
+#         ingredients = Ingredient.query.all()
+#         return render_template('backend_ing.html', ingredients=ingredients)
 
 #@app.route('/edit/<int:id>', methods=["POST", "GET"])
 #def update_record(id):
