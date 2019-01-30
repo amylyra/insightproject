@@ -6,7 +6,7 @@ class Product(Base):
 
     brand = Column(String(50), primary_key=True)
     name = Column(String(100))
-    ingredients = Column(String(1000))
+    ingredients = Column (Ingredient)
     listPrice = Column(String(10))
     size = Column(String(10))
     rating = Column(String(10))
