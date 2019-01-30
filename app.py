@@ -24,7 +24,7 @@ def index():
     return render_template('index.html', products=products)
 
 @app.route('/backend', methods=["POST", "GET"])
-def product():
+def backend():
     if request.method == "POST":
         search_brand = request.form["brand"]
         search_name = request.form["name"]
