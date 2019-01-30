@@ -41,28 +41,33 @@ def backend():
             brand =  product_name = ingredients = listPrice = size = rating = None
         
         ing_clean_list = ingredients_processing(ing_raw)
-        ing_canonical_list=[]
+        ing_name_list=ing_safety_list=[]
         
         for ing in ing_clean_list:
             ing_result = ingredient_search(ing, es,index=ingredient_index)
             if ing_result:
-                name = ing_result[0]
-                about =ing_result[1]
-                safety = ing_ result[2]
-                function =ing_result[3]
+                ing_name = ing_result[0]
+#                 about =ing_result[1]
+                ing_safety = ing_ result[2]
+#                 function =ing_result[3]
            else:
-                name = about = safety = function = None
-           new_ingredient = Ingredient(name, about, safety, function)
-           ing_canonical_list.append(new_ingredient)
+                ing_name = ing_safety = None
+           #new_ingredient = Ingredient(name, about, safety, function)
+           ing_name_list.append(ing_name)
+           ing_safety_list.append(ing_safety)
+        
+        ing_name_string=",".join(ing_name_list)
+        lowest_safety=min(ing_safety_list)
          
-        new_product = Product(brand, product_name, ing_canonical_list, listPrice,size,rating)
+        new_product = Product(brand, product_name, ing_name_string, lowest_safety,listPrice,size,rating)
         db_session.add(new_product)
         db_session.commit()
           
         data_product = {
             "brand": new_product.brand,
             "product_name": new_product.product_name,
-            "ingredients": new_product.ing_canonical_list,
+            "ingredients": new_product.ingredients,
+            "safety_score": new_product.safety_score
             "listPrice": new_product.listPrice,
             "size":new_product.size,
             "rating":new_product.rating
