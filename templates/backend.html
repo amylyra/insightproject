@@ -3,7 +3,9 @@
 {% block content %}
     <form method="POST" id="target"> 
         <div class="form-group">
-            <input type="text" class="form-control" name="ingredient" placeholder="ingredient">
+            <input type="text" class="form-control" name="brand" placeholder="brand">
+            <input type="text" class="form-control" name="name" placeholder="name">
+
         </div>
         <button type="submit" class="btn btn-block btn-primary">Submit</button>
     </form>
@@ -11,22 +13,33 @@
     <br />
 
     <div class="table-responsive">
-        <table class="table" id="ingredient">
+        <table class="table" id="product">
             <thead>
                 <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">About</th>
-                    <th scope="col">Overall Hazard</th>
-                    <th scope="col">Function(s)</th>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Product Name</th>
+                    <th scope="col">Ingredients</th>
+                    <th scope="col">Safety_score</th>
+                    <th scope="col">List Price</th>
+                    <th scope="col">Size</th>
+                    <th scope="col">Rating</th>
+                    
+
+                    
+                    
                 </tr>
             </thead>
             <tbody>
-            {% for ingredient in ingredients %}
-                <tr id={{ ingredient.name }}>
-                    <th scope="row">{{ ingredient.name }}</th>
-                    <td> {{ingredient.about }}</td>
-                    <td> {{ingredient.safety }} </td>
-                    <td> {{ingredient.function }} </td>
+            {% for product in products %}
+                <tr id={{ product.product_name }}>
+                    <th scope="row">{{ product.brand }}</th>
+                    <td> {{product.product_name }}</td>
+                    <td> {{product.ingredients }}</td>
+                    <td> {{product.safety_score }}</td>
+                    <td> {{product.listPrice }}</td>
+                    <td> {{product.size}}</td>
+                    <td> {{product.rating}}</td>
+                   
                 </tr>
             {% endfor %}
             </tbody>
