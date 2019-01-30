@@ -5,17 +5,19 @@ class Product(Base):
     __tablename__ = 'products'
 
     brand = Column(String(50), primary_key=True)
-    name = Column(String(100))
-    ingredients = Column (Ingredient)
+    product_name = Column(String(100))
+    ingredients = Column (String(1000)
+    safety_score= Column (Integer)                      
     listPrice = Column(String(10))
     size = Column(String(10))
     rating = Column(String(10))
 
-    def __init__(self, brand=None, name=None, ingredients=None,
+    def __init__(self, brand=None, product_name=None, ingredients=None,safety_score=None,
                  listPrice=None,size=None,rating=None):
         self.brand = brand
-        self.name = name
-        self.ingredients= ingredients
+        self.product_name = product_name
+        self.ingredients =ingredients
+        self.safety_score= safey_score
         self.listPrice = listPrice
         self.size = size
         self.rating = rating
