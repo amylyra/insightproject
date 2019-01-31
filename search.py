@@ -42,7 +42,7 @@ def ingredients_processing(ingredients):
     symbols=["(",")","/","-",":"]
     ingredients=ingredients.lower()
     for s in symbols:
-             ingredients=ingredients.replace(s," ")
+        ingredients=ingredients.replace(s," ")
         try:
             ingredients=ingredients[ingredients.index("water"):]
         except ValueError:
@@ -92,7 +92,11 @@ def ingredient_search(ing_name, es, index=ingredient_index):
         result = es.search(index=index,
                            body=query
                           )['hits']['hits'][0]['_source']
-        return(result)
+        name = result['name']
+        about = result['About']
+        safety = result['Overall Hazard']
+        function = result['Function(s)']
+        return(name, about, safety, function)
     except:
         return None
         

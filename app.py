@@ -3,16 +3,17 @@ import os
 from database import db_session
 from flask import Flask, request, jsonify, render_template, redirect
 from models import Ingredient, Product
-from search import init_search, ingredient_search, product_search
+from search import init_search, ingredient_search, product_search, ingredients_processing
 
 app = Flask(__name__)
 
+
 pusher_client = pusher.Pusher(
-    app_id=os.getenv('PUSHER_APP_ID'),
-    key=os.getenv('PUSHER_KEY'),
-    secret=os.getenv('PUSHER_SECRET'),
-    cluster=os.getenv('PUSHER_CLUSTER'),
-    ssl=True)
+     app_id=os.getenv('PUSHER_APP_ID'),
+     key=os.getenv('PUSHER_KEY'),
+     secret=os.getenv('PUSHER_SECRET'),
+     cluster=os.getenv('PUSHER_CLUSTER'),
+     ssl=True)
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -41,20 +42,22 @@ def backend():
             brand =  product_name = ingredients = listPrice = size = rating = None
         
         ing_clean_list = ingredients_processing(ing_raw)
-        ing_name_list=ing_safety_list=[]
+        ing_name_list=[]
+        ing_safety_list=[]
         
         for ing in ing_clean_list:
-            ing_result = ingredient_search(ing, es,index=ingredient_index)
+            ing_result = ingredient_search(ing, es)
             if ing_result:
                 ing_name = ing_result[0]
 #                 about =ing_result[1]
-                ing_safety = ing_ result[2]
+                ing_safety = int(ing_result[2]) 
 #                 function =ing_result[3]
-           else:
+                ing_name_list.append(ing_name)
+                ing_safety_list.append(ing_safety)
+            else:
                 ing_name = ing_safety = None
            #new_ingredient = Ingredient(name, about, safety, function)
-           ing_name_list.append(ing_name)
-           ing_safety_list.append(ing_safety)
+            
         
         ing_name_string=",".join(ing_name_list)
         lowest_safety=min(ing_safety_list)
@@ -67,7 +70,7 @@ def backend():
             "brand": new_product.brand,
             "product_name": new_product.product_name,
             "ingredients": new_product.ingredients,
-            "safety_score": new_product.safety_score
+            "safety_score": new_product.safety_score,
             "listPrice": new_product.listPrice,
             "size":new_product.size,
             "rating":new_product.rating
@@ -79,6 +82,8 @@ def backend():
     else:
         products = Product.query.all()
         return render_template('backend.html', products=products)
+
+# -------------------
 
 # @app.route('/ing', methods=["POST", "GET"])
 # def ingredient():
@@ -146,10 +151,11 @@ def backend():
 #        pusher_client.trigger('table', 'update-record', {'data': data })
 #
 #        return redirect("/
-", code=302)
+# ", code=302)
 #    else:
 #        new_flight = Flight.query.get(id)
-#        new_flight.check_in = new_flight.check_in.strftime("%d-%m-%Y %H:%M %p")
+#        new_flight.check_in = new_flight.check_in.strftime("%d-%m-%Y %H:%M %p")    
+
 #        new_flight.departure = new_flight.departure.strftime("%d-%m-%Y %H:%M %p")
 #
 #        return render_template('update_flight.html', data=new_flight)

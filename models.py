@@ -1,13 +1,13 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Integer
 from database import Base
 
 class Product(Base):
     __tablename__ = 'products'
 
-    brand = Column(String(50), primary_key=True)
-    product_name = Column(String(100))
-    ingredients = Column (String(1000)
-    safety_score= Column (Integer)                      
+    brand = Column(String(50))
+    product_name = Column(String(100),primary_key=True)
+    ingredients = Column (String(1000))
+    safety_score = Column (Integer)                      
     listPrice = Column(String(10))
     size = Column(String(10))
     rating = Column(String(10))
@@ -17,7 +17,7 @@ class Product(Base):
         self.brand = brand
         self.product_name = product_name
         self.ingredients =ingredients
-        self.safety_score= safey_score
+        self.safety_score= safety_score
         self.listPrice = listPrice
         self.size = size
         self.rating = rating
